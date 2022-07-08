@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib import admin
 
 from .views import (
     ClassCreateView,
@@ -20,9 +21,12 @@ from .views import (
     TermDeleteView,
     TermListView,
     TermUpdateView,
+    # admin_view,
+    AdminView
 )
 
 urlpatterns = [
+    path('admin/', AdminView.as_view(), name="admin"),
     path("", IndexView.as_view(), name="home"),
     path("site-config", SiteConfigView.as_view(), name="configs"),
     path(

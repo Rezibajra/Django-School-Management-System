@@ -2,9 +2,10 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-
+from django.contrib.auth.models import User
 
 class Staff(models.Model):
+    
     STATUS = [("active", "Active"), ("inactive", "Inactive")]
 
     GENDER = [("male", "Male"), ("female", "Female")]

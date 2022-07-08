@@ -16,8 +16,12 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
+from django.contrib import admin
+
+admin.site.site_header = "YouMe Nepal"  #Added
 
 urlpatterns = [
+    path('admin/', admin.site.urls),    #Added
     path("accounts/", include("django.contrib.auth.urls")),
     path("", include("apps.corecode.urls")),
     path("student/", include("apps.students.urls")),

@@ -101,7 +101,7 @@
                 </p>
               </a>
             </li>
-
+            
             <li class="nav-header">Finance</li>
             <li class="nav-item">
               <a href="{% url 'invoice-list' %}" class="nav-link">
@@ -111,7 +111,9 @@
                 </p>
               </a>
             </li>
+            
             <li class="nav-header">Results</li>
+            {% if perms.result.add_result %}         <!--Added-->
             <li class="nav-item">
               <a href="{% url 'create-result' %}" class="nav-link">
                 <i class="nav-icon fas fa-money-bill-alt"></i>
@@ -120,6 +122,8 @@
                 </p>
               </a>
             </li>
+            {% endif %}                                 <!--Added-->
+            {% if perms.result.change_result %}          <!--Added-->
             <li class="nav-item">
               <a href="{% url 'edit-results' %}" class="nav-link">
                 <i class="nav-icon fas fa-money-bill-alt"></i>
@@ -128,6 +132,7 @@
                 </p>
               </a>
             </li>
+            {% endif %}                                   <!--Added-->
             <li class="nav-item">
               <a href="{% url 'view-results' %}" class="nav-link">
                 <i class="nav-icon fas fa-money-bill-alt"></i>
@@ -190,7 +195,14 @@
                 </p>
               </a>
             </li>
-
+            <li class="nav-item">
+              <a href="{% url 'admin' %}" class="nav-link">
+                <i class="nav-icon fas fa-cog"></i>
+                <p>
+                  User & Groups
+                </p>
+              </a>
+            </li>
 
           </ul>
         </nav>

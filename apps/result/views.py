@@ -9,8 +9,11 @@ from apps.students.models import Student
 from .forms import CreateResults, EditResults
 from .models import Result
 
+from django.contrib.auth.mixins import PermissionRequiredMixin       #Added
+from django.contrib.auth.decorators import permission_required       #Added
 
 @login_required
+@permission_required('result.add_result')                            #Added
 def create_result(request):
     students = Student.objects.all()
     if request.method == "POST":
@@ -70,6 +73,7 @@ def create_result(request):
 
 
 @login_required
+@permission_required('result.change_result')                           #Added
 def edit_results(request):
     if request.method == "POST":
         form = EditResults(request.POST)
@@ -85,7 +89,8 @@ def edit_results(request):
     return render(request, "result/edit_results.html", {"formset": form})
 
 
-class ResultListView(LoginRequiredMixin, View):
+class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Modified
+    permission_required = "result.view_result"                               #Added
     def get(self, request, *args, **kwargs):
         results = Result.objects.filter(
             session=request.current_session, term=request.current_term

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import HttpResponseRedirect, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, TemplateView, View
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
@@ -27,6 +27,12 @@ from .models import (
 class IndexView(LoginRequiredMixin, TemplateView):
     template_name = "index.html"
 
+class AdminView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponseRedirect(reverse('admin:index'))
+
+# def admin_view(request):
+#     return HttpResponseRedirect(reverse('admin:index'))
 
 class SiteConfigView(LoginRequiredMixin, View):
     """Site Config View"""

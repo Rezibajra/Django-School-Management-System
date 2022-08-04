@@ -1,3 +1,5 @@
 #Added
 def create_default_password(username):
-    return username + "@123"
+    print(str(username))
+    print((str(username)).strip() + "@123")
+    return ((str(username)).strip() + "@123")

@@ -7,6 +7,7 @@ from .models import (
     SiteConfig,
     StudentClass,
     Subject,
+    Mark
 )
 
 SiteConfigForm = modelformset_factory(
@@ -40,7 +41,7 @@ class SubjectForm(ModelForm):
 
     class Meta:
         model = Subject
-        fields = ["name"]
+        fields = '__all__'
 
 
 class StudentClassForm(ModelForm):
@@ -49,6 +50,18 @@ class StudentClassForm(ModelForm):
     class Meta:
         model = StudentClass
         fields = ["name"]
+
+
+class MarkForm(ModelForm):
+    prefix = "Mark"
+    class Meta:
+        model = Mark
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(MarkForm, self).__init__(*args, **kwargs)
+        subject_with_marks = list(Mark.objects.all())
+        self.fields['subject'].queryset = Subject.objects.exclude(name__in = subject_with_marks)
 
 
 class CurrentSessionForm(forms.Form):

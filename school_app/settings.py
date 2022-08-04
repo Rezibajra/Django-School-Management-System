@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "apps.staffs",
     "apps.finance",
     "apps.result",
+    "apps.users"
 ]
 
 MIDDLEWARE = [
@@ -183,5 +184,7 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Site Default values

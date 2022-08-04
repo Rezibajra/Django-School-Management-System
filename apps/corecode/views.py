@@ -1,3 +1,5 @@
+from dataclasses import fields
+from xml.dom import ValidationErr
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,6 +8,8 @@ from django.shortcuts import HttpResponseRedirect, redirect, render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, TemplateView, View
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.http import HttpResponse
+from django import forms
 
 from .forms import (
     AcademicSessionForm,
@@ -14,6 +18,7 @@ from .forms import (
     SiteConfigForm,
     StudentClassForm,
     SubjectForm,
+    MarkForm
 )
 from .models import (
     AcademicSession,
@@ -21,6 +26,7 @@ from .models import (
     SiteConfig,
     StudentClass,
     Subject,
+    Mark
 )
 
 
@@ -226,7 +232,7 @@ class SubjectCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
 class SubjectUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Subject
-    fields = ["name"]
+    fields = "__all__"
     success_url = reverse_lazy("subjects")
     success_message = "Subject successfully updated."
     template_name = "corecode/mgt_form.html"
@@ -243,6 +249,50 @@ class SubjectDeleteView(LoginRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message.format(obj.name))
         return super(SubjectDeleteView, self).delete(request, *args, **kwargs)
 
+#Added
+class MarksListView(LoginRequiredMixin, SuccessMessageMixin, ListView):
+    model = Mark
+    template_name = "corecode/mark_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = MarkForm()
+        return context
+
+class MarksCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Mark
+    form_class = MarkForm
+    template_name = "corecode/mark_list.html"
+    success_url = reverse_lazy("marks")
+    success_message = "New mark division successfully added"
+
+class MarksUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Mark
+    fields = "__all__"
+    template_name = "corecode/mark_form.html"
+    success_url = reverse_lazy("marks")
+    success_message = "Marks successfully updated."
+
+    def get_form(self, *args, **kwargs):
+        form = super(MarksUpdateView, self).get_form(*args, **kwargs)
+        mark_name = str(Mark.objects.get(id = self.kwargs.get('pk')))
+        form.fields['subject'].queryset = Subject.objects.filter(name = mark_name)
+
+        if mark_name != 'English' :
+            form.fields.pop('listening_score')
+            form.fields.pop('speaking_score')
+        return form
+
+class MarksDeleteView(LoginRequiredMixin, DeleteView):
+    model = Mark
+    success_url = reverse_lazy("marks")
+    template_name = "corecode/core_confirm_delete.html"
+    success_message = "The mark {} has been deleted with all its attached content"
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        messages.success(self.request, self.success_message.format(obj))
+        return super(MarksDeleteView, self).delete(request, *args, **kwargs)
 
 class CurrentSessionAndTermView(LoginRequiredMixin, View):
     """Current SEssion and Term"""
@@ -260,7 +310,7 @@ class CurrentSessionAndTermView(LoginRequiredMixin, View):
         return render(request, self.template_name, {"form": form})
 
     def post(self, request, *args, **kwargs):
-        form = self.form_Class(request.POST)
+        form = self.form_class(request.POST)
         if form.is_valid():
             session = form.cleaned_data["current_session"]
             term = form.cleaned_data["current_term"]

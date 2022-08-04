@@ -43,6 +43,7 @@ class Subject(models.Model):
     """Subject"""
 
     name = models.CharField(max_length=200, unique=True)
+    is_complex = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["name"]
@@ -61,3 +62,54 @@ class StudentClass(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Mark(models.Model):
+    MARKS_DIVISION_CHOICES = [
+        ('5%', '5%'),
+        ('10%', '10%'),
+        ('15%', '15%'),
+        ('20%', '20%'),
+        ('25%', '25%'),
+        ('45%', '45%'),
+        ('50%', '50%'),
+        ('75%', '75%'),
+        ('90%', '90%')
+    ]
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    # require_exam_score = models.BooleanField(default=True)
+    # require_test_score = models.BooleanField(default=True)
+    # require_performance_score = models.BooleanField(default=True)
+    # require_listening_score = models.BooleanField(default=False)
+    # require_speaking_score = models.BooleanField(default=False)
+    exam_score = models.CharField(
+        max_length=4,
+        choices=MARKS_DIVISION_CHOICES,
+    )
+    test_score = models.CharField(
+        max_length=4,
+        choices=MARKS_DIVISION_CHOICES,
+        null=True,
+        blank=True
+    )
+    performance_score = models.CharField(
+        max_length=4,
+        choices=MARKS_DIVISION_CHOICES,
+        null=True,
+        blank=True
+    )
+    listening_score = models.CharField(
+        max_length=4,
+        choices=MARKS_DIVISION_CHOICES,
+        null=True,
+        blank=True
+    )
+    speaking_score = models.CharField(
+        max_length=4,
+        choices=MARKS_DIVISION_CHOICES,
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return str(self.subject)

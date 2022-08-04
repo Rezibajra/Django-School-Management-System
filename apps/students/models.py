@@ -2,9 +2,12 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-
+from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
 from apps.corecode.models import StudentClass
+from ..staffs.utils import create_default_password
 
+User = get_user_model()
 
 class Student(models.Model):
     STATUS_CHOICES = [("active", "Active"), ("inactive", "Inactive")]
@@ -49,3 +52,12 @@ class Student(models.Model):
 class StudentBulkUpload(models.Model):
     date_uploaded = models.DateTimeField(auto_now=True)
     csv_file = models.FileField(upload_to="students/bulkupload/")
+
+#Added entire block till last
+def post_student_created_signal(sender, instance, created, **kwargs):
+    if created:
+        default_password = create_default_password(instance)
+        user = User.objects.create_user(username = str(instance).strip(), password = default_password, member_id = instance.id)
+        print(user.id)
+
+post_save.connect(post_student_created_signal, sender=Student)

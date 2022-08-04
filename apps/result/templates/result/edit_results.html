@@ -36,7 +36,7 @@ Update Results
           <td>{{form.instance.total_score}}</td>
           <td>{{form.DELETE}}</td>
           <td>{{form.instance.current_class}}</td>
-
+          <!-- <td>{{form.instance.exam_scoe}}</td> -->
         </tr>
       {% endfor %}
     </tbody>
@@ -44,5 +44,10 @@ Update Results
 
   <input type="submit" class="btn btn-success" value="Save">
   </form>
+
+  <!-- <script>
+    let exam_validation = document.getElementById('id_form-0-test_score');
+    console.log(exam_validation);
+  </script> -->
 
 {% endblock content %}

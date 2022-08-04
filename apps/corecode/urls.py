@@ -22,7 +22,11 @@ from .views import (
     TermListView,
     TermUpdateView,
     # admin_view,
-    AdminView
+    AdminView,
+    MarksListView,
+    MarksCreateView,
+    MarksUpdateView,
+    MarksDeleteView
 )
 
 urlpatterns = [
@@ -63,5 +67,17 @@ urlpatterns = [
         "subject/<int:pk>/delete/",
         SubjectDeleteView.as_view(),
         name="subject-delete",
+    ),
+    path("mark/list/", MarksListView.as_view(), name="marks"),
+    path("mark/create/", MarksCreateView.as_view(), name="mark-create"),
+    path(
+        "mark/<int:pk>/update/",
+        MarksUpdateView.as_view(),
+        name="mark-update",
+    ),
+    path(
+        "mark/<int:pk>/delete/",
+        MarksDeleteView.as_view(),
+        name="mark-delete",
     ),
 ]

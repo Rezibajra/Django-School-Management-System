@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from django.views.generic import DetailView, ListView, View
 
 from apps.students.models import Student
+from apps.corecode.models import Mark
 
 from .forms import CreateResults, EditResults
 from .models import Result
@@ -31,6 +32,9 @@ def create_result(request):
                     stu = Student.objects.get(pk=student)
                     if stu.current_class:
                         for subject in subjects:
+                            max_exam_sc = Mark.objects.filter(subject = subject).values('exam_score')[0]['exam_score'][:-1]  #Added
+                            max_test_sc = Mark.objects.filter(subject = subject).values('test_score')[0]['test_score'][:-1]  #Added
+                            print(max_exam_sc, max_test_sc)
                             check = Result.objects.filter(
                                 session=session,
                                 term=term,
@@ -46,10 +50,13 @@ def create_result(request):
                                         current_class=stu.current_class,
                                         subject=subject,
                                         student=stu,
+                                        # max_exam_sc = max_exam_sc,
+                                        # max_test_sc=max_test_sc
                                     )
                                 )
 
                 Result.objects.bulk_create(results)
+                # return render(request, "result/edit_results.html", {"formset": form})
                 return redirect("edit-results")
 
         # after choosing students

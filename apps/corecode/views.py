@@ -11,6 +11,8 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.http import HttpResponse
 from django import forms
 
+from apps.result.models import Result
+
 from .forms import (
     AcademicSessionForm,
     AcademicTermForm,
@@ -291,6 +293,7 @@ class MarksDeleteView(LoginRequiredMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()
+        Result.objects.filter(subject__name = obj).delete()
         messages.success(self.request, self.success_message.format(obj))
         return super(MarksDeleteView, self).delete(request, *args, **kwargs)
 

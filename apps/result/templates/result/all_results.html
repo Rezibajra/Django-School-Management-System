@@ -13,10 +13,14 @@
             <tr>
               <th></th>
               <th>Subject</th>
-              <th>Test Score</th>
               <th>Exam Score</th>
-              <th>Total Score</th>
-              <th>Grade</th>
+              <th>Test Score</th>
+              <th>Performance Score</th>
+              <th>Speaking Score</th>
+              <th>Listening Score</th>
+              <th>Obtained Score</th>
+              <th>Full Score</th>
+              <th>Percentage</th>
             </tr>
           </thead>
           <tbody>
@@ -24,27 +28,30 @@
               <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ subject.subject }}</td>
-                <td>{{ subject.test_score }}</td>
                 <td>{{ subject.exam_score }}</td>
+                <td>{{ subject.test_score }}</td>
+                <td>{{ subject.performance_score }}</td>
+                <td>{{ subject.speaking_score }}</td>
+                <td>{{ subject.listening_score }}</td>
                 <td>{{ subject.total_score }}</td>
-                <td>{{ subject.grade }}</td>
+                <td>hi</td>
               </tr>
             {% endfor %}
           </tbody>
           <tfoot>
             <tr>
               <td colspan="2"></td>
-              <td>{{ result.test_total }}</td>
               <td>{{ result.exam_total }}</td>
+              <td>{{ result.test_total }}</td>
+              <td>{{ result.performance_total }}</td>
+              <td>{{ result.speaking_total }}</td>
+              <td>{{ result.listening_total }}</td>
               <td>{{ result.total_total }}</td>
-              <td></td>
+              <td>{{ result.real_total }}</td>
+              <td>{{ result.percentage }}</td>
             </tr>
           </tfoot>
         </table>
-
-
-
-
       </div>
     </div>
   {% endfor %}

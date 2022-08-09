@@ -24,21 +24,17 @@ class IntegerRangeField(models.IntegerField):
         return super(IntegerRangeField, self).formfield(**defaults)
 
 class Result(models.Model):
-    
-
-    def exam_scoe(self):
-        subject = Mark.objects.filter(subject = self.subject)
-        return int(subject.values('exam_score')[0]['exam_score'][:-1])
-
-    #try to use init method
 
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     session = models.ForeignKey(AcademicSession, on_delete=models.CASCADE)
     term = models.ForeignKey(AcademicTerm, on_delete=models.CASCADE)
     current_class = models.ForeignKey(StudentClass, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    test_score = IntegerRangeField(default=0, min_value = 0, max_value=10)
-    exam_score = IntegerRangeField(default=0, min_value = 0, max_value=10)
+    test_score = models.FloatField(default=0)
+    exam_score = models.FloatField(default=0)
+    performance_score = models.FloatField(default=0)
+    speaking_score = models.FloatField(default=0)
+    listening_score = models.FloatField(default=0)
 
     class Meta:
         ordering = ["subject"]
@@ -47,9 +43,11 @@ class Result(models.Model):
         return f"{self.student} {self.session} {self.term} {self.subject}"
 
     def total_score(self):
-        return self.test_score + self.exam_score
+        return self.test_score + self.exam_score + self.performance_score + self.listening_score + self.speaking_score
 
-    def grade(self):
-        return score_grade(self.total_score())
+    # def grade(self):
+    #     return score_grade(self.total_score())
+
+    
 
     

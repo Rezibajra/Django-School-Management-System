@@ -19,6 +19,9 @@ Update Results
         <th>Subject</th>
         <th>Test Score</th>
         <th>Exam Score</th>
+        <th>Perform Score</th>
+        <th>Speaking Score</th>
+        <th>Listening Score</th>
         <th>Total</th>
         <th>Delete</th>
         <th>Class</th>
@@ -33,6 +36,9 @@ Update Results
           <td>{{form.instance.subject}}</td>
           <td style="width: 10%;">{{form.test_score | add_class:"form-control form-control-sm"}}</td>
           <td style="width: 10%;">{{form.exam_score | add_class:"form-control form-control-sm"}}</td>
+          <td style="width: 10%;">{{form.performance_score | add_class:"form-control form-control-sm"}}</td>
+          <td style="width: 10%;">{{form.speaking_score | add_class:"form-control form-control-sm"}}</td>
+          <td style="width: 10%;">{{form.listening_score | add_class:"form-control form-control-sm"}}</td>
           <td>{{form.instance.total_score}}</td>
           <td>{{form.DELETE}}</td>
           <td>{{form.instance.current_class}}</td>

@@ -9,6 +9,7 @@ from apps.corecode.models import Mark
 
 from .forms import CreateResults,  EditResultsForm
 from .models import Result
+from .utils import final_result_data
 
 from django.contrib.auth.mixins import PermissionRequiredMixin       #Added
 from django.contrib.auth.decorators import permission_required       #Added
@@ -27,6 +28,15 @@ def create_result(request):
                 session = form.cleaned_data["session"]
                 term = form.cleaned_data["term"]
                 students = request.POST["students"]
+                lower_term = str(request.current_term).lower()
+                if 'final' in lower_term:
+                    final_data = final_result_data(request, subjects, session, students)
+                    print(final_data)
+                    return render(
+                        request,
+                        "result/final_result_page.html",
+                        {"data": final_data}
+                    )
                 results = []
                 for student in students.split(","):
                     stu = Student.objects.get(pk=student)
@@ -62,7 +72,6 @@ def create_result(request):
                     "term": request.current_term,
                 }
             )
-            print(form)
             studentlist = ",".join(id_list)
             return render(
                 request,
@@ -77,6 +86,12 @@ def create_result(request):
 @login_required
 @permission_required('result.change_result')                           #Added
 def edit_results(request):
+    lower_term = str(request.current_term).lower()
+    if 'final' in lower_term:
+        return render(
+            request,
+            "result/disable_update.html",
+        )
     if request.method == "POST":
         form = EditResultsForm(request.POST)
         if form.is_valid():
@@ -94,6 +109,15 @@ def edit_results(request):
 class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Modified
     permission_required = "result.view_result"                               #Added
     def get(self, request, *args, **kwargs):
+        lower_term = str(request.current_term).lower()
+        # if 'final' in lower_term:
+        #     final_data = final_result_data(subjects, request.current_session, students)
+        #     messages.warning(request, "You didnt select any student.")
+        #     return render(
+        #         request,
+        #         "result/final_result_page.html",
+        #         {"data": final_data}
+        #     )
         results = Result.objects.filter(
             session=request.current_session, term=request.current_term
         )
@@ -114,7 +138,6 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
                     performance_total += subject.performance_score
                     speaking_total += subject.speaking_score
                     listening_total += subject.listening_score
-                print(subjects)
             
             if result.student.id in real_total:
                 real_total[result.student.id] += int(Mark.objects.filter(subject = result.subject).values('exam_score')[0]['exam_score'][:-1])

@@ -5,11 +5,17 @@ from .models import Result
 from apps.corecode.models import Mark
 
 class CreateResults(forms.Form):
+    marks_list = None
     session = forms.ModelChoiceField(queryset=AcademicSession.objects.all())
     term = forms.ModelChoiceField(queryset=AcademicTerm.objects.all())
     subjects = forms.ModelMultipleChoiceField(
-        queryset=Subject.objects.filter(name__in = list(Mark.objects.all())), widget=forms.CheckboxSelectMultiple
+        queryset=marks_list, widget=forms.CheckboxSelectMultiple
     )
+
+    def __init__(self, *args, **kwargs):
+        self.marks_list = Subject.objects.filter(name__in = list(Mark.objects.all()))
+        super(CreateResults, self).__init__(*args, **kwargs)
+        self.fields['subjects'].queryset = self.marks_list
 
 
 EditResults = modelformset_factory(
@@ -21,7 +27,7 @@ class EditResultsForm(EditResults):
     def __init__(self, *args, **kwargs):
         super(EditResultsForm, self).__init__(*args, **kwargs)
         if kwargs:
-            data = [str(x).split()[-1] for x in kwargs['queryset']]
+            data = [x.subject for x in kwargs['queryset']]
             for i in range(len(data)):
                 data_exam = self.get_exam_score(data[i])
                 data_test = self.get_test_score(data[i])

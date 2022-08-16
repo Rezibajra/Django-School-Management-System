@@ -20,6 +20,7 @@
               <th>Listening Score</th>
               <th>Obtained Score</th>
               <th>Full Score</th>
+              <th>100% equivalent</th>
               <th>Percentage</th>
             </tr>
           </thead>
@@ -34,7 +35,8 @@
                 <td>{{ subject.speaking_score }}</td>
                 <td>{{ subject.listening_score }}</td>
                 <td>{{ subject.total_score }}</td>
-                <td>hi</td>
+                <td>{{ subject.full_marks }}</td>
+                <td>{{ subject.equivalent_score }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -48,6 +50,7 @@
               <td>{{ result.listening_total }}</td>
               <td>{{ result.total_total }}</td>
               <td>{{ result.real_total }}</td>
+              <td></td>
               <td>{{ result.percentage }}</td>
             </tr>
           </tfoot>

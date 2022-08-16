@@ -29,8 +29,20 @@ class AcademicSession(models.Model):
 class AcademicTerm(models.Model):
     """Academic Term"""
 
+    WEIGHTAGE_DIVISION_CHOICES = [
+        ('10%', '10%'),
+        ('20%', '20%'),
+        ('30%', '30%'),
+        ('60%', '60%'),
+    ]
     name = models.CharField(max_length=20, unique=True)
     current = models.BooleanField(default=True)
+    weightage = models.CharField(
+        max_length=4,
+        choices=WEIGHTAGE_DIVISION_CHOICES,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         ordering = ["name"]
@@ -43,7 +55,6 @@ class Subject(models.Model):
     """Subject"""
 
     name = models.CharField(max_length=200, unique=True)
-    is_complex = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["name"]
@@ -77,11 +88,6 @@ class Mark(models.Model):
         ('90%', '90%')
     ]
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    # require_exam_score = models.BooleanField(default=True)
-    # require_test_score = models.BooleanField(default=True)
-    # require_performance_score = models.BooleanField(default=True)
-    # require_listening_score = models.BooleanField(default=False)
-    # require_speaking_score = models.BooleanField(default=False)
     exam_score = models.CharField(
         max_length=4,
         choices=MARKS_DIVISION_CHOICES,

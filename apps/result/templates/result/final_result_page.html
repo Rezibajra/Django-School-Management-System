@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block fullcard %}
+
+  {% for key, result in data.items %}
+    <div class="card">
+      <div class="card-header">
+        {{result.student}}
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered table-sm">
+          <thead class="thead-light">
+            <tr>
+              <th></th>
+              <th>Subject</th>
+              <th>First Term</th>
+              <th>Second Term</th>
+              <th>Third Term</th>
+              <th>Obtained</th>
+              <th>Full Score</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for key, subject in result.subjects.items %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ key }}</td>
+                <td>{{ subject.first }}</td>
+                <td>{{ subject.second }}</td>
+                <td>{{ subject.third }}</td>
+                <td>{{ subject.all }}</td>
+                <td>100</td>
+                <td></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>{{result.percentage}}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  {% endfor %}
+
+{% endblock fullcard %}

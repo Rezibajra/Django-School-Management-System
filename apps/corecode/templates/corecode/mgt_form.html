@@ -19,7 +19,7 @@
           {% for field in form %}
           <div class="form-group">
             {{ field.label_tag}}
-            {{ field | add_class:"form-control" |add_error_class:"is-invalid" | attr:"required"}}
+            {{ field | add_class:"form-control" |add_error_class:"is-invalid"}}
             {{field.help_text}}
             {{field.errors}}
           </div>

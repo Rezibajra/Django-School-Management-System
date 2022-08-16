@@ -33,7 +33,7 @@ class AcademicTermForm(ModelForm):
 
     class Meta:
         model = AcademicTerm
-        fields = ["name", "current"]
+        fields = ["name", "weightage", "current"]
 
 
 class SubjectForm(ModelForm):

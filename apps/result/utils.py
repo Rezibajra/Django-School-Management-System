@@ -1,7 +1,7 @@
 from django.contrib import messages
 from apps.students.models import Student
 from apps.corecode.models import AcademicTerm
-from .models import Result
+from .models import Result, FinalResult
 
 def score_grade(score):
     if score <= 10:
@@ -29,8 +29,9 @@ def calc_mark_by_weightage(term_name, term_mark):
     final_mark = (term_weightage/100) * float(term_mark)
     return final_mark
 
-def final_result_data(request, subjects, session, students):
+def final_result_data(request, subjects, term, session, students):
     bulk = {}
+    results = []
     for student in students.split(","):
         stu = Student.objects.get(pk=student)
         total = 0
@@ -61,6 +62,20 @@ def final_result_data(request, subjects, session, students):
                 total += all_term_total
                 real_total += 100
 
+                results.append(
+                    FinalResult(
+                        session=session,
+                        term=term,
+                        current_class=stu.current_class,
+                        subject=subject,
+                        student=stu,
+                        first=first_final_mark,
+                        second=second_final_mark,
+                        third=third_final_mark,
+                        total=all_term_total,
+                    )
+                )
+
             bulk[student] = {
                 "student": stu,
                 "subjects": subject_dict,
@@ -70,5 +85,5 @@ def final_result_data(request, subjects, session, students):
         else:
             messages.warning(request, f"Result not generated for student {stu} as no class is assigned.")
 
-        
+    FinalResult.objects.bulk_create(results)  
     return bulk

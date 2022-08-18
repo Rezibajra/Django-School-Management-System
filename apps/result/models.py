@@ -91,3 +91,9 @@ class FinalResult(models.Model):
     second = models.FloatField(default=0)
     third = models.FloatField(default=0)
     total = models.FloatField(default=0)
+
+    class Meta:
+        ordering = ["subject"]
+
+    def __str__(self):
+        return f"{self.student} {self.session} {self.term} {self.subject}"

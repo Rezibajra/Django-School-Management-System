@@ -6,15 +6,23 @@ from apps.corecode.models import Mark
 
 class CreateResults(forms.Form):
     marks_list = None
-    session = forms.ModelChoiceField(queryset=AcademicSession.objects.all())
-    term = forms.ModelChoiceField(queryset=AcademicTerm.objects.all())
+    current_term =  AcademicTerm.objects.all()
+    current_session = AcademicSession.objects.all()
+    session = forms.ModelChoiceField(queryset=current_session)
+    term = forms.ModelChoiceField(queryset=current_term)
     subjects = forms.ModelMultipleChoiceField(
         queryset=marks_list, widget=forms.CheckboxSelectMultiple
     )
 
     def __init__(self, *args, **kwargs):
+        if kwargs:
+            self.current_session = AcademicSession.objects.filter(name = kwargs['initial']['session'])
+        if kwargs:
+            self.current_term = AcademicTerm.objects.filter(name = kwargs['initial']['term'])
         self.marks_list = Subject.objects.filter(name__in = list(Mark.objects.all()))
         super(CreateResults, self).__init__(*args, **kwargs)
+        self.fields['session'].queryset = self.current_session
+        self.fields['term'].queryset = self.current_term
         self.fields['subjects'].queryset = self.marks_list
 
 

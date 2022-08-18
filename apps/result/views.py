@@ -30,7 +30,7 @@ def create_result(request):
                 students = request.POST["students"]
                 lower_term = str(request.current_term).lower()
                 if 'final' in lower_term:
-                    final_data = final_result_data(request, subjects, session, students)
+                    final_data = final_result_data(request, subjects, term, session, students)
                     print(final_data)
                     return render(
                         request,
@@ -65,6 +65,7 @@ def create_result(request):
 
         # after choosing students
         id_list = request.POST.getlist("students")
+        print(request.current_term)
         if id_list:
             form = CreateResults(
                 initial={

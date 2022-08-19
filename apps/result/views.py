@@ -65,7 +65,6 @@ def create_result(request):
 
         # after choosing students
         id_list = request.POST.getlist("students")
-        print(request.current_term)
         if id_list:
             form = CreateResults(
                 initial={

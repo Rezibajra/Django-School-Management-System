@@ -20,12 +20,10 @@ def get_term_data(term_name, session, student, subject):
     if term_mark is not None:
         term_mark_final = term_mark.equivalent_score()
     else:
-        # term_mark_final = f"Please enter the marks for {subject} for {term_name}."
         term_mark_final = 0
     return term_mark_final
 
-def calc_mark_by_weightage(term_name, term_mark):
-    term_weightage = int(AcademicTerm.objects.filter(name = term_name).first().weightage[:-1])
+def calc_mark_by_weightage(term_weightage, term_mark):
     final_mark = (term_weightage/100) * float(term_mark)
     return final_mark
 
@@ -41,18 +39,24 @@ def final_result_data(request, subjects, term, session, students):
             for subject in subjects:
                 subject_dict[subject.name] = {}
 
-                first_term = "First term"
+                first_term = "First Term"
                 first_term_mark = get_term_data(first_term, session, stu, subject)
 
-                second_term = "2nd Term"
+                second_term = "Second Term"
                 second_term_mark = get_term_data(second_term, session, stu, subject)
 
-                third_term = "3rd Term"
+                third_term = "Third Term"
                 third_term_mark = get_term_data(third_term, session, stu, subject)
 
-                first_final_mark = calc_mark_by_weightage(first_term, first_term_mark)
-                second_final_mark = calc_mark_by_weightage(second_term, second_term_mark)
-                third_final_mark = calc_mark_by_weightage(third_term, third_term_mark)
+                final_term_data = AcademicTerm.objects.filter(name = "Final Result").values()
+
+                first_term_weightage = int(final_term_data[0]['first_weightage'][:-1])
+                second_term_weightage = int(final_term_data[0]['second_weightage'][:-1])
+                third_term_weightage = int(final_term_data[0]['third_weightage'][:-1])
+
+                first_final_mark = calc_mark_by_weightage(first_term_weightage, first_term_mark)
+                second_final_mark = calc_mark_by_weightage(second_term_weightage, second_term_mark)
+                third_final_mark = calc_mark_by_weightage(third_term_weightage, third_term_mark)
                 all_term_total = first_final_mark + second_final_mark + third_final_mark
 
                 subject_dict[subject.name]['first'] = first_final_mark

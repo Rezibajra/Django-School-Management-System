@@ -33,7 +33,12 @@ class AcademicTermForm(ModelForm):
 
     class Meta:
         model = AcademicTerm
-        fields = ["name", "weightage", "current"]
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        modified_term_list =  [term['name'] for term in list(AcademicTerm.objects.values())]
+        self.fields['name'].choices = [c for c in AcademicTerm.name.field.choices if c[0] not in modified_term_list]
 
 
 class SubjectForm(ModelForm):

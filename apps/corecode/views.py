@@ -130,14 +130,12 @@ class TermListView(LoginRequiredMixin, SuccessMessageMixin, ListView):
         context["form"] = AcademicTermForm()
         return context
 
-
 class TermCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = AcademicTerm
     form_class = AcademicTermForm
-    template_name = "corecode/mgt_form.html"
+    template_name = "corecode/term_list.html"
     success_url = reverse_lazy("terms")
     success_message = "New term successfully added"
-
 
 class TermUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = AcademicTerm
@@ -145,6 +143,12 @@ class TermUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_url = reverse_lazy("terms")
     success_message = "Term successfully updated."
     template_name = "corecode/mgt_form.html"
+
+    def get_form(self, *args, **kwargs):
+        form = super(TermUpdateView, self).get_form(*args, **kwargs)
+        selected_term = str(AcademicTerm.objects.get(id = self.kwargs.get('pk')))
+        form.fields['name'].choices = [c for c in AcademicTerm.name.field.choices if c[0] == selected_term]
+        return form
 
     def form_valid(self, form):
         obj = self.object
@@ -156,7 +160,7 @@ class TermUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             )
             if not terms:
                 messages.warning(self.request, "You must set a term to current.")
-                return redirect("term")
+                return redirect("terms")
         return super().form_valid(form)
 
 

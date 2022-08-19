@@ -125,7 +125,6 @@
     const marksSumCheck = (exam_input_score, test_input_score, performance_input_score, listening_input_score, speaking_input_score) => {
         let sum_total = 0;
         sum_total = exam_input_score + test_input_score + performance_input_score + listening_input_score + speaking_input_score;
-        console.log("hello", sum_total);
         
         if (sum_total <= 100 || isNaN(sum_total)) {
             exam_score.classList.remove("is-invalid");

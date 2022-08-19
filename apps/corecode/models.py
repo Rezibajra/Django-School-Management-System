@@ -29,21 +29,42 @@ class AcademicSession(models.Model):
 class AcademicTerm(models.Model):
     """Academic Term"""
 
+    TERM_CHOICES = [
+        ('First Term', 'First Term'),
+        ('Second Term', 'Second Term'),
+        ('Third Term', 'Third Term'),
+        ('Final Result', 'Final Result'),
+    ]
     WEIGHTAGE_DIVISION_CHOICES = [
         ('10%', '10%'),
         ('20%', '20%'),
         ('30%', '30%'),
         ('60%', '60%'),
     ]
-    name = models.CharField(max_length=20, unique=True)
+    name = models.CharField(
+        max_length=20,
+        choices=TERM_CHOICES,
+    )
     current = models.BooleanField(default=True)
-    weightage = models.CharField(
+    first_weightage = models.CharField(
+        max_length=4,
+        choices=WEIGHTAGE_DIVISION_CHOICES,
+        null=True,
+        blank=True
+
+    )
+    second_weightage = models.CharField(
         max_length=4,
         choices=WEIGHTAGE_DIVISION_CHOICES,
         null=True,
         blank=True
     )
-
+    third_weightage = models.CharField(
+        max_length=4,
+        choices=WEIGHTAGE_DIVISION_CHOICES,
+        null=True,
+        blank=True
+    )
     class Meta:
         ordering = ["name"]
 

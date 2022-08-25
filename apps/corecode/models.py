@@ -1,4 +1,5 @@
 from django.db import models
+from ..users.models import CustomUser
 
 # Create your models here.
 
@@ -140,3 +141,12 @@ class Mark(models.Model):
 
     def __str__(self):
         return str(self.subject)
+
+class MarkAuditLog(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING)
+    mark = models.ForeignKey(Mark, on_delete=models.DO_NOTHING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user} {self.mark}"

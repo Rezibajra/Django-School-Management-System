@@ -34,7 +34,9 @@ class Result(models.Model):
     performance_score = models.FloatField(default=0)
     speaking_score = models.FloatField(default=0)
     listening_score = models.FloatField(default=0)
-
+    full_score = models.FloatField(default=0, null=True, blank=True)
+    equivalent_score = models.FloatField(default=0, null=True, blank=True)
+    
     class Meta:
         ordering = ["subject"]
 
@@ -46,38 +48,6 @@ class Result(models.Model):
 
     # def grade(self):
     #     return score_grade(self.total_score())
-
-    def full_marks(self):
-        subject = Mark.objects.filter(subject__name = self.subject)
-        if subject.values('exam_score')[0]['exam_score'] is not None:
-            exam_score = int(subject.values('exam_score')[0]['exam_score'][:-1])
-        else:
-            exam_score = 0
-
-        if subject.values('test_score')[0]['test_score'] is not None:
-            test_score = int(subject.values('test_score')[0]['test_score'][:-1])
-        else:
-            test_score = 0
-
-        if subject.values('performance_score')[0]['performance_score'] is not None:
-            performance_score = int(subject.values('performance_score')[0]['performance_score'][:-1])
-        else:
-            performance_score = 0
-
-        if subject.values('speaking_score')[0]['speaking_score'] is not None:
-            speaking_score = int(subject.values('speaking_score')[0]['speaking_score'][:-1])
-        else:
-            speaking_score = 0
-
-        if subject.values('listening_score')[0]['listening_score'] is not None:
-            listening_score = int(subject.values('listening_score')[0]['listening_score'][:-1])
-        else:
-            listening_score = 0
-
-        return exam_score + test_score + performance_score + speaking_score + listening_score
-
-    def equivalent_score(self):
-        return format(((self.test_score + self.exam_score + self.performance_score + self.listening_score + self.speaking_score)/self.full_marks())*100, ".2f")
 
     
 class FinalResult(models.Model):

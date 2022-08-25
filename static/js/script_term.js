@@ -7,29 +7,21 @@
         let labels = document.getElementsByTagName("label");
         let btn = document.querySelectorAll(".btn");
         let error = document.getElementById("error");
+        let table = document.getElementsByClassName("table");
 
-        let first_input_weightage = 0;
-        let second_input_weightage = 0;
-        let third_input_weightage = 0;
-
+        let first_input_weightage, second_input_weightage, third_input_weightage;
         let term_current = term_name.value;
-        console.log(term_current);
-
-        const clearFields = () => {
-            first_input_weightage = 0;
-            second_input_weightage = 0;
-            third_input_weightage = 0;
-            first_weightage.options.selectedIndex = 0;
-            second_weightage.options.selectedIndex = 0;
-            third_weightage.options.selectedIndex = 0;
-            first_weightage.classList.remove("is-invalid");
-            second_weightage.classList.remove("is-invalid");
-            third_weightage.classList.remove("is-invalid");
-            error.textContent = ""
+        
+        const disableButtonOnFullList = () => {
+            let table_row_len = (table.length>0 ? table[0].rows.length:0);
+            if (table_row_len == 4) {
+                btn[0].disabled = true;
+            }
         }
 
+        disableButtonOnFullList();
+
         const dynamicLabelDisplay = (term) => {
-            
             for (let label of labels) {
                 let label_id = label.htmlFor;
                 if (term != 'Final Result' || term == "none") {
@@ -42,23 +34,57 @@
             }
         }
 
-        if (term_current == "Final Result") {
-            if (btn[2]){
-                console.log(btn[2]);
-                btn[2].disabled = true;
+        const initialSetting = () => {
+            if (first_weightage.options.selectedIndex == 0){
+                first_input_weightage = 0;
+            } else {
+                first_input_weightage = parseInt(first_weightage.options[first_weightage.options.selectedIndex].textContent);
             }
-            first_weightage.style.display = "block";
-            second_weightage.style.display = "block";
-            third_weightage.style.display = "block";
-            dynamicLabelDisplay(term_current);
-        } else {
-            first_weightage.style.display = "none";
-            second_weightage.style.display = "none";
-            third_weightage.style.display = "none";
-            first_weightage.required = false;
-            second_weightage.required = false;
-            third_weightage.required = false;
-            dynamicLabelDisplay(term_current);
+    
+            if (second_weightage.options.selectedIndex == 0){
+                second_input_weightage = 0;
+            } else {
+                second_input_weightage = parseInt(second_weightage.options[second_weightage.options.selectedIndex].textContent);
+            }
+    
+            if (third_weightage.options.selectedIndex == 0){
+                third_input_weightage = 0;
+            } else {
+                third_input_weightage = parseInt(third_weightage.options[third_weightage.options.selectedIndex].textContent);
+            }
+
+            if (term_current == "Final Result") {
+                if (btn[2]){
+                    btn[2].disabled = true;
+                }
+                first_weightage.style.display = "block";
+                second_weightage.style.display = "block";
+                third_weightage.style.display = "block";
+                dynamicLabelDisplay(term_current);
+            } else {
+                first_weightage.style.display = "none";
+                second_weightage.style.display = "none";
+                third_weightage.style.display = "none";
+                first_weightage.required = false;
+                second_weightage.required = false;
+                third_weightage.required = false;
+                dynamicLabelDisplay(term_current);
+            }
+        }     
+        
+        initialSetting();
+
+        const clearFields = () => {
+            first_input_weightage = 0;
+            second_input_weightage = 0;
+            third_input_weightage = 0;
+            first_weightage.options.selectedIndex = 0;
+            second_weightage.options.selectedIndex = 0;
+            third_weightage.options.selectedIndex = 0;
+            first_weightage.classList.remove("is-invalid");
+            second_weightage.classList.remove("is-invalid");
+            third_weightage.classList.remove("is-invalid");
+            error.textContent = "";
         }
     
         const hideUnhideWeightage = () => {
@@ -70,7 +96,6 @@
                     second_weightage.style.display = "block";
                     third_weightage.style.display = "block";
                     if (btn[2]){
-                        console.log(btn[2]);
                         btn[2].disabled = true;
                     } else {
                         btn[0].disabled = true;
@@ -96,6 +121,20 @@
 
         hideUnhideWeightage();
 
+        const performClasslistAddition = () => {
+            first_weightage.classList.add("is-invalid");
+            second_weightage.classList.add("is-invalid");
+            third_weightage.classList.add("is-invalid");
+            error.style.color = "red";
+            error.style.margin = "auto"
+            error.style.display = "table";
+            if (btn[2]){
+                btn[2].disabled = true;
+            } else {
+                btn[0].disabled = true;
+            }
+        }
+
         const marksSumCheck = (first_input_weightage, second_input_weightage, third_input_weightage) => {
             let sum_total = 0;
             
@@ -112,46 +151,16 @@
                     btn[0].disabled = false;
                 }
             } else if (sum_total > 100){
-                first_weightage.classList.add("is-invalid");
-                second_weightage.classList.add("is-invalid");
-                third_weightage.classList.add("is-invalid");
                 error.textContent = "The weightage allocation has exceeded 100%."
-                error.style.color = "red";
-                error.style.margin = "auto"
-                error.style.display = "table";
-                if (btn[2]){
-                    btn[2].disabled = true;
-                } else {
-                    btn[0].disabled = true;
-                }
+                performClasslistAddition();
             }  else {
-                first_weightage.classList.add("is-invalid");
-                second_weightage.classList.add("is-invalid");
-                third_weightage.classList.add("is-invalid");
                 error.textContent = "The weightage allocation must be equal to 100%."
-                error.style.color = "red";
-                error.style.margin = "auto"
-                error.style.display = "table";
-                if (btn[2]){
-                    btn[2].disabled = true;
-                } else {
-                    btn[0].disabled = true;
-                }
+                performClasslistAddition();
             }
            
             if ((first_input_weightage == 0 || second_input_weightage == 0 || third_input_weightage == 0) || (isNaN(first_input_weightage)) || isNaN(second_input_weightage) || isNaN(third_input_weightage)){
                 error.textContent = "Please input all the fields."
-                first_weightage.classList.add("is-invalid");
-                second_weightage.classList.add("is-invalid");
-                third_weightage.classList.add("is-invalid");
-                error.style.color = "red";
-                error.style.margin = "auto"
-                error.style.display = "table";
-                if (btn[2]){
-                    btn[2].disabled = true;
-                } else {
-                    btn[0].disabled = true;
-                }
+                performClasslistAddition();
             }
         }
 
@@ -183,10 +192,27 @@
                 $('#modal1 form')[0].reset();
                 clearFields();
                 error.textContent = "";
+                first_weightage.style.display = "none";
+                second_weightage.style.display = "none";
+                third_weightage.style.display = "none";
                 first_weightage.classList.remove("is-invalid");
                 second_weightage.classList.remove("is-invalid");
                 third_weightage.classList.remove("is-invalid");
+                setLabelVisibility();
+                if (btn[2]){
+                    btn[2].disabled = false;
+                }
             });
         });
+
+    
+        const setLabelVisibility = () => {
+            for (let label of labels) {
+                let label_id = label.htmlFor;
+                if (label_id == 'id_Academic Term-first_weightage' || label_id == 'id_Academic Term-second_weightage' || label_id == 'id_Academic Term-third_weightage') {
+                    label.hidden = true;
+                }
+            }
+        }
 
 })();

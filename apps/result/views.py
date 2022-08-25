@@ -1,3 +1,4 @@
+import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,7 +10,7 @@ from apps.corecode.models import Mark
 
 from .forms import CreateResults,  EditResultsForm
 from .models import Result
-from .utils import final_result_data
+from .utils import final_result_data, return_score
 
 from django.contrib.auth.mixins import PermissionRequiredMixin       #Added
 from django.contrib.auth.decorators import permission_required       #Added
@@ -31,7 +32,6 @@ def create_result(request):
                 lower_term = str(request.current_term).lower()
                 if 'final' in lower_term:
                     final_data = final_result_data(request, subjects, term, session, students)
-                    print(final_data)
                     return render(
                         request,
                         "result/final_result_page.html",
@@ -61,6 +61,10 @@ def create_result(request):
                                 )
 
                 Result.objects.bulk_create(results)
+                subject_list = [str(sub.name) for sub in subjects]
+                post = request.POST.copy()
+                post.update({'subjects':[','.join(subject_list)]})
+                request.session['temp_data'] = post
                 return redirect("edit-results")
 
         # after choosing students
@@ -94,8 +98,13 @@ def edit_results(request):
         )
     if request.method == "POST":
         form = EditResultsForm(request.POST)
+    
         if form.is_valid():
-            form.save()
+            result = form.save(commit=False)
+            for res in result:
+                res.full_score = return_score(res.subject, res.exam_score, res.test_score, res.performance_score, res.listening_score, res.speaking_score)[0]
+                res.equivalent_score = return_score(res.subject, res.exam_score, res.test_score, res.performance_score, res.listening_score, res.speaking_score)[1]
+                res.save()
             messages.success(request, "Results successfully updated")
             return redirect("edit-results")
     else:
@@ -129,7 +138,9 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
             performance_total = 0
             speaking_total = 0
             listening_total = 0
+            equivalent_total = 0
             subjects = []
+
             for subject in results:
                 if subject.student == result.student:
                     subjects.append(subject)
@@ -138,6 +149,7 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
                     performance_total += subject.performance_score
                     speaking_total += subject.speaking_score
                     listening_total += subject.listening_score
+                    equivalent_total += subject.equivalent_score
             
             if result.student.id in real_total:
                 real_total[result.student.id] += int(Mark.objects.filter(subject = result.subject).values('exam_score')[0]['exam_score'][:-1])
@@ -167,6 +179,7 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
                 "listening_total": listening_total,
                 "total_total": test_total + exam_total + performance_total + speaking_total + listening_total,
                 "real_total": real_total[result.student.id],
+                "equivalent_total": equivalent_total,
                 "percentage": format(((test_total + exam_total + performance_total + speaking_total + listening_total) / real_total[result.student.id]) * 100, ".2f") + "%",
             }
 

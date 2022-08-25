@@ -1,4 +1,5 @@
 from dataclasses import fields
+from datetime import datetime
 from xml.dom import ValidationErr
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -28,7 +29,8 @@ from .models import (
     SiteConfig,
     StudentClass,
     Subject,
-    Mark
+    Mark,
+    MarkAuditLog
 )
 
 
@@ -288,6 +290,13 @@ class MarksUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             form.fields.pop('listening_score')
             form.fields.pop('speaking_score')
         return form
+
+    def post(self, request, *args, **kwargs):
+        MarkAuditLog(
+            user = request.user,
+            mark = Mark.objects.get(id = kwargs['pk'])
+        ).save()
+        return super().post(request, *args, **kwargs)
 
 class MarksDeleteView(LoginRequiredMixin, DeleteView):
     model = Mark

@@ -13,9 +13,9 @@
             <tr>
               <th></th>
               <th>Subject</th>
-              <th>First Term</th>
-              <th>Second Term</th>
-              <th>Third Term</th>
+              <th>First Term ({{result.first_weightage}})</th>
+              <th>Second Term ({{result.second_weightage}})</th>
+              <th>Third Term ({{result.third_weightage}})</th>
               <th>Obtained</th>
               <th>Full Score</th>
               <th>Percentage</th>
@@ -42,8 +42,8 @@
               <td></td>
               <td></td>
               <td></td>
-              <td></td>
-              <td></td>
+              <td>{{result.total}}</td>
+              <td>{{result.real_total}}</td>
               <td>{{result.percentage}}</td>
             </tr>
           </tfoot>

@@ -4,13 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.views.generic import DetailView, ListView, View
+from django.contrib.auth.models import Group
 
 from apps.students.models import Student
 from apps.corecode.models import Mark
 
 from .forms import CreateResults,  EditResultsForm
-from .models import Result
-from .utils import final_result_data, return_score
+from .models import Result, FinalResult
+from .utils import final_result_data, return_score, get_formatted_data
 
 from django.contrib.auth.mixins import PermissionRequiredMixin       #Added
 from django.contrib.auth.decorators import permission_required       #Added
@@ -38,6 +39,7 @@ def create_result(request):
                         {"data": final_data}
                     )
                 results = []
+               
                 for student in students.split(","):
                     stu = Student.objects.get(pk=student)
                     if stu.current_class:
@@ -119,19 +121,29 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
     permission_required = "result.view_result"                               #Added
     def get(self, request, *args, **kwargs):
         lower_term = str(request.current_term).lower()
-        # if 'final' in lower_term:
-        #     final_data = final_result_data(subjects, request.current_session, students)
-        #     messages.warning(request, "You didnt select any student.")
-        #     return render(
-        #         request,
-        #         "result/final_result_page.html",
-        #         {"data": final_data}
-        #     )
-        results = Result.objects.filter(
-            session=request.current_session, term=request.current_term
-        )
+        if 'final' in lower_term:
+            if request.user.is_staff or request.user.groups.filter(name="Teacher"):
+                final_results = FinalResult.objects.filter(
+                    session=request.current_session, term=request.current_term
+                )
+            else:
+                final_results = FinalResult.objects.filter(
+                    session=request.current_session, term=request.current_term, student=Student.objects.get(id = request.user.member_id)
+                )
+                
+            formatted_final_res = get_formatted_data(final_results)
+            context = {"data": formatted_final_res}
+            return render(request, "result/final_display_page.html", context)
+
+        if request.user.is_staff:
+            results = Result.objects.filter(
+                session=request.current_session, term=request.current_term
+            )
+        else:
+            results = Result.objects.filter(
+                session=request.current_session, term=request.current_term, student=Student.objects.get(id = request.user.member_id)
+            )
         bulk = {}
-        real_total = {}
         for result in results:
             test_total = 0
             exam_total = 0
@@ -139,6 +151,7 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
             speaking_total = 0
             listening_total = 0
             equivalent_total = 0
+            real_total = 0
             subjects = []
 
             for subject in results:
@@ -150,25 +163,8 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
                     speaking_total += subject.speaking_score
                     listening_total += subject.listening_score
                     equivalent_total += subject.equivalent_score
+                    real_total+= 100
             
-            if result.student.id in real_total:
-                real_total[result.student.id] += int(Mark.objects.filter(subject = result.subject).values('exam_score')[0]['exam_score'][:-1])
-            else:
-                real_total[result.student.id] = int(Mark.objects.filter(subject = result.subject).values('exam_score')[0]['exam_score'][:-1])
-            
-            if Mark.objects.filter(subject = result.subject).values('test_score')[0]['test_score'] is not None:
-                real_total[result.student.id] += int(Mark.objects.filter(subject = result.subject).values('test_score')[0]['test_score'][:-1])
-
-            if Mark.objects.filter(subject = result.subject).values('performance_score')[0]['performance_score'] is not None:
-                real_total[result.student.id] += int(Mark.objects.filter(subject = result.subject).values('performance_score')[0]['performance_score'][:-1])
-
-            if str(result.subject) == "English":
-                if Mark.objects.filter(subject = result.subject).values('listening_score')[0]['listening_score'] is not None:
-                    real_total[result.student.id] += int(Mark.objects.filter(subject = result.subject).values('listening_score')[0]['listening_score'][:-1])
-
-                if Mark.objects.filter(subject = result.subject).values('speaking_score')[0]['speaking_score'] is not None:
-                    real_total[result.student.id] += int(Mark.objects.filter(subject = result.subject).values('speaking_score')[0]['speaking_score'][:-1])
-
             bulk[result.student.id] = {
                 "student": result.student,
                 "subjects": subjects,
@@ -178,9 +174,8 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
                 "speaking_total": speaking_total,
                 "listening_total": listening_total,
                 "total_total": test_total + exam_total + performance_total + speaking_total + listening_total,
-                "real_total": real_total[result.student.id],
                 "equivalent_total": equivalent_total,
-                "percentage": format(((test_total + exam_total + performance_total + speaking_total + listening_total) / real_total[result.student.id]) * 100, ".2f") + "%",
+                "percentage": format((equivalent_total/real_total)*100, ".2f") + "%"
             }
 
         context = {"results": bulk}

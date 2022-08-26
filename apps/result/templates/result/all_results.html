@@ -5,7 +5,7 @@
   {% for key, result in results.items %}
     <div class="card">
       <div class="card-header">
-        {{result.student}}
+        {{result.student.firstname}} {{result.student.surname}}({{result.student.registration_number}})
       </div>
       <div class="card-body">
         <table class="table table-bordered table-sm">
@@ -21,7 +21,7 @@
               <th>Obtained Score</th>
               <th>Full Score</th>
               <th>100% equivalent</th>
-              <th>Percentage</th>
+              <th>Percentage(100% equivalent)</th>
             </tr>
           </thead>
           <tbody>
@@ -49,7 +49,8 @@
               <td>{{ result.speaking_total }}</td>
               <td>{{ result.listening_total }}</td>
               <td>{{ result.total_total }}</td>
-              <td>{{ result.real_total }}</td>
+              <td></td>
+              <!-- <td>{{ result.real_total }}</td> -->
               <td>{{result.equivalent_total}}</td>
               <td>{{ result.percentage }}</td>
             </tr>

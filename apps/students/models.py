@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from apps.corecode.models import StudentClass
+from django.contrib.auth.models import Group
 from ..staffs.utils import create_default_password
 
 User = get_user_model()
@@ -43,7 +44,7 @@ class Student(models.Model):
         ordering = ["surname", "firstname", "other_name"]
 
     def __str__(self):
-        return f"{self.surname} {self.firstname} {self.other_name} ({self.registration_number})"
+        return f"{self.registration_number}"
 
     def get_absolute_url(self):
         return reverse("student-detail", kwargs={"pk": self.pk})
@@ -57,7 +58,8 @@ class StudentBulkUpload(models.Model):
 def post_student_created_signal(sender, instance, created, **kwargs):
     if created:
         default_password = create_default_password(instance)
+        group = Group.objects.get(name='Student')
         user = User.objects.create_user(username = str(instance).strip(), password = default_password, member_id = instance.id)
-        print(user.id)
+        user.groups.add(group)
 
 post_save.connect(post_student_created_signal, sender=Student)

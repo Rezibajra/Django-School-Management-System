@@ -32,7 +32,7 @@ Update Results
       {{ form.id}}
         <tr>
           <td>{{forloop.counter }}</td>
-          <td>{{form.instance.student }}</td>
+          <td>{{form.instance.student.firstname}} {{form.instance.student.surname}}({{form.instance.student.registration_number}})</td>
           <td>{{form.instance.subject}}</td>
           <td style="width: 10%;">{{form.test_score | add_class:"form-control form-control-sm"}}</td>
           <td style="width: 10%;">{{form.exam_score | add_class:"form-control form-control-sm"}}</td>

@@ -29,9 +29,9 @@ def default_site_config(apps, schema_editor):
     Term = apps.get_model("corecode", "AcademicTerm")
     Term.objects.bulk_create(
         [
-            Term(name="1st Term", current=True),
-            Term(name="2nd Term", current=False),
-            Term(name="3rd Term", current=False),
+            Term(name="First Term", current=True),
+            # Term(name="2nd Term", current=False),
+            # Term(name="3rd Term", current=False),
         ]
     )
 

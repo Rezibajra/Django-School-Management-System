@@ -40,10 +40,10 @@
           <a href="{% url 'home' %} " class="nav-link"><i class="fa fa-home"></i></a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-          <a href="{% url 'current-session' %}" class="nav-link">Session: {{ current_session }}</a>
+          <a href="#" class="nav-link">Session: {{ current_session }}</a>
         </li>
         <li class="nav-item d-none d-sm-inline-block">
-          <a href="{% url 'current-session' %}" class="nav-link">Term: {{ current_term }}</a>
+          <a href="#" class="nav-link">Term: {{ current_term }}</a>
         </li>
       </ul>
 
@@ -86,6 +86,7 @@
         <nav class="mt-2">
           <ul class="nav nav-pills nav-sidebar flex-column"
             data-widget="treeview" role="menu" data-accordion="false">
+            {% if perms.student.add_student %}
             <li class="nav-item">
               <a href="{% url 'student-list' %}" class="nav-link">
                 <i class="nav-icon fas fa-graduation-cap"></i>
@@ -94,6 +95,8 @@
                 </p>
               </a>
             </li>
+            {% endif %}
+            {% if perms.staff.add_staff %}
             <li class="nav-item">
               <a href="{% url 'staff-list' %}" class="nav-link">
                 <i class="nav-icon fas fa-users"></i>
@@ -102,7 +105,8 @@
                 </p>
               </a>
             </li>
-            
+            {% endif %}
+            {% if perms.finance.add_invoice %}
             <li class="nav-header">Finance</li>
             <li class="nav-item">
               <a href="{% url 'invoice-list' %}" class="nav-link">
@@ -112,7 +116,7 @@
                 </p>
               </a>
             </li>
-            
+            {% endif %}
             <li class="nav-header">Results</li>
             {% if perms.result.add_result %}         <!--Added-->
             <li class="nav-item">
@@ -142,7 +146,7 @@
                 </p>
               </a>
             </li>
-
+            {% if request.user.is_staff or request.user.groups.first.name == 'Teacher' %}
             <li class="nav-header">Others</li>
             <li class="nav-item has-treeview">
               <a href="#" class="nav-link">
@@ -196,6 +200,8 @@
                 </li>
               </ul>
             </li>
+            {% endif %}
+            {% if request.user.is_staff %}
             <li class="nav-item">
               <a href="{% url 'configs' %}" class="nav-link">
                 <i class="nav-icon fas fa-cog"></i>
@@ -212,7 +218,7 @@
                 </p>
               </a>
             </li>
-
+            {% endif %}
           </ul>
         </nav>
         <!-- /.sidebar-menu -->
@@ -242,7 +248,7 @@
           <div class="row">
             <div class="col-md-12">
               {% block fullcard %}
-              <div class="card" style="height: 35rem;">
+              <div class="card">
                 {% block content-header %}{% endblock content-header %}
                 <div class="card-body">
                   <div class="row">

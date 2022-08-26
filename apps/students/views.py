@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.contrib.auth.models import Group
 
 from apps.finance.models import Invoice
 
@@ -40,7 +41,14 @@ class StudentCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form.fields["address"].widget = widgets.Textarea(attrs={"rows": 2})
         form.fields["others"].widget = widgets.Textarea(attrs={"rows": 2})
         return form
-
+    
+    def post(self, request, *args, **kwargs):
+        result = super().post(request, *args, **kwargs)
+        # group = Group(name="Student")
+        # user =CustomUser.objects.get(request.user)
+        # group = Group.objects.get(name='Student') 
+        # group.user_set.add(request.user)
+        return result
 
 class StudentUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Student

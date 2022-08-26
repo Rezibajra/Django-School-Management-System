@@ -25,8 +25,15 @@ def get_term_data(term_name, session, student, subject):
     return term_mark_final
 
 def calc_mark_by_weightage(term_weightage, term_mark):
-    final_mark = (term_weightage/100) * float(term_mark)
+    final_mark = float(format((term_weightage/100) * float(term_mark), ".2f"))
     return final_mark
+
+def get_final_weighatge():
+    final_term_data = AcademicTerm.objects.filter(name = "Final Result").values()
+    first_term_weightage = int(final_term_data[0]['first_weightage'][:-1])
+    second_term_weightage = int(final_term_data[0]['second_weightage'][:-1])
+    third_term_weightage = int(final_term_data[0]['third_weightage'][:-1])
+    return first_term_weightage, second_term_weightage, third_term_weightage
 
 def final_result_data(request, subjects, term, session, students):
     bulk = {}
@@ -35,10 +42,10 @@ def final_result_data(request, subjects, term, session, students):
         stu = Student.objects.get(pk=student)
         total = 0
         real_total = 0
-        final_term_data = AcademicTerm.objects.filter(name = "Final Result").values()
-        first_term_weightage = int(final_term_data[0]['first_weightage'][:-1])
-        second_term_weightage = int(final_term_data[0]['second_weightage'][:-1])
-        third_term_weightage = int(final_term_data[0]['third_weightage'][:-1])
+        # final_term_data = AcademicTerm.objects.filter(name = "Final Result").values()
+        first_term_weightage = get_final_weighatge()[0]
+        second_term_weightage = get_final_weighatge()[1]
+        third_term_weightage = get_final_weighatge()[2]
         if stu.current_class:
             subject_dict = {}
             for subject in subjects:
@@ -65,6 +72,17 @@ def final_result_data(request, subjects, term, session, students):
                 total += all_term_total
                 real_total += 100
 
+                check = FinalResult.objects.filter(
+                                session=session,
+                                term=term,
+                                current_class=stu.current_class,
+                                subject=subject,
+                                student=stu,
+                            ).first()
+
+                if check:
+                    check.delete()
+                
                 results.append(
                     FinalResult(
                         session=session,
@@ -94,6 +112,7 @@ def final_result_data(request, subjects, term, session, students):
             messages.warning(request, f"Result not generated for student {stu} as no class is assigned.")
 
     FinalResult.objects.bulk_create(results)  
+    print(bulk)
     return bulk
 
 def return_score(subject, exam_sc, test_sc, perf_sc, listen_sc, speak_sc):
@@ -127,3 +146,39 @@ def return_score(subject, exam_sc, test_sc, perf_sc, listen_sc, speak_sc):
     full_score = exam_score + test_score + performance_score + speaking_score + listening_score
     equiv_score = format(((exam_sc + test_sc + perf_sc + listen_sc + speak_sc)/full_score)*100, ".2f")
     return full_score, equiv_score
+
+
+def get_formatted_data(final_res):
+    students = Student.objects.all()
+    bulk = {}
+    first_term_weightage = get_final_weighatge()[0]
+    second_term_weightage = get_final_weighatge()[1]
+    third_term_weightage = get_final_weighatge()[2]
+    
+    for stu in students:
+        total = 0
+        real_total = 0
+        subjects_dict = {}
+        for result in final_res:
+            if stu.id == result.student.id and result.student.id:
+                subjects_dict[result.subject.name] = {}
+                subjects_dict[result.subject.name]['first'] = result.first
+                subjects_dict[result.subject.name]['second'] = result.second
+                subjects_dict[result.subject.name]['third'] = result.third
+                subjects_dict[result.subject.name]['all'] = result.first + result.second + result.third
+                total +=  subjects_dict[result.subject.name]['all']
+                real_total += 100
+
+
+        if total > 0:
+            bulk[stu.id] = {
+                "student": stu,
+                "subjects": subjects_dict,
+                "first_weightage": str(first_term_weightage) + "%",
+                "second_weightage": str(second_term_weightage) + "%",
+                "third_weightage": str(third_term_weightage) + "%",
+                "total": total,
+                "real_total": real_total,
+                "percentage": str(format((total/real_total) * 100, ".2f")) + "%",
+            }
+    return bulk

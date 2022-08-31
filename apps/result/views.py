@@ -63,9 +63,9 @@ def create_result(request):
                                 )
 
                 Result.objects.bulk_create(results)
-                subject_list = [str(sub.name) for sub in subjects]
+                subject_list = [str(sub.id) for sub in subjects]
                 post = request.POST.copy()
-                post.update({'subjects':[','.join(subject_list)]})
+                post.update({'subjects':','.join(subject_list)})
                 request.session['temp_data'] = post
                 return redirect("edit-results")
 
@@ -100,9 +100,10 @@ def edit_results(request):
         )
     if request.method == "POST":
         form = EditResultsForm(request.POST)
-    
         if form.is_valid():
             result = form.save(commit=False)
+            for obj in form.deleted_objects:
+                obj.delete()
             for res in result:
                 res.full_score = return_score(res.subject, res.exam_score, res.test_score, res.performance_score, res.listening_score, res.speaking_score)[0]
                 res.equivalent_score = return_score(res.subject, res.exam_score, res.test_score, res.performance_score, res.listening_score, res.speaking_score)[1]
@@ -110,8 +111,11 @@ def edit_results(request):
             messages.success(request, "Results successfully updated")
             return redirect("edit-results")
     else:
+        subjects = request.session['temp_data']['subjects'].split(',')
+        students = request.session['temp_data']['students'].split(',')
         results = Result.objects.filter(
-            session=request.current_session, term=request.current_term
+            session=request.current_session, term=request.current_term, 
+            student__in = students, subject__in = subjects
         )
         form = EditResultsForm(queryset=results)
     return render(request, "result/edit_results.html", {"formset": form})
@@ -133,7 +137,7 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
                 
             formatted_final_res = get_formatted_data(final_results)
             context = {"data": formatted_final_res}
-            return render(request, "result/final_display_page.html", context)
+            return render(request, "result/final_result_page.html", context)
 
         if request.user.is_staff:
             results = Result.objects.filter(

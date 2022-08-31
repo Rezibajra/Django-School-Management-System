@@ -104,7 +104,7 @@ def final_result_data(request, subjects, term, session, students):
                 "first_weightage": str(first_term_weightage) + "%",
                 "second_weightage": str(second_term_weightage) + "%",
                 "third_weightage": str(third_term_weightage) + "%",
-                "total": total,
+                "total": format(total, ".2f"),
                 "real_total": real_total
             }
 
@@ -112,7 +112,6 @@ def final_result_data(request, subjects, term, session, students):
             messages.warning(request, f"Result not generated for student {stu} as no class is assigned.")
 
     FinalResult.objects.bulk_create(results)  
-    print(bulk)
     return bulk
 
 def return_score(subject, exam_sc, test_sc, perf_sc, listen_sc, speak_sc):
@@ -177,7 +176,7 @@ def get_formatted_data(final_res):
                 "first_weightage": str(first_term_weightage) + "%",
                 "second_weightage": str(second_term_weightage) + "%",
                 "third_weightage": str(third_term_weightage) + "%",
-                "total": total,
+                "total": format(total, ".2f"),
                 "real_total": real_total,
                 "percentage": str(format((total/real_total) * 100, ".2f")) + "%",
             }

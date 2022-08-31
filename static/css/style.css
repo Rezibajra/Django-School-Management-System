@@ -1,0 +1,5 @@
+#id_subjects{
+    display: grid;
+    grid-template-columns: 3fr 3fr 3fr 3fr;
+    column-gap: 25px;
+}

@@ -5,7 +5,7 @@
   {% for key, result in data.items %}
     <div class="card">
       <div class="card-header">
-        {{result.student}}
+        {{result.student.firstname}} {{result.student.surname}}({{result.student.registration_number}})
       </div>
       <div class="card-body">
         <table class="table table-bordered table-sm">

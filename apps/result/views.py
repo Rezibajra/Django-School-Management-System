@@ -7,7 +7,7 @@ from django.views.generic import DetailView, ListView, View
 from django.contrib.auth.models import Group
 
 from apps.students.models import Student
-from apps.corecode.models import Mark
+from apps.corecode.models import Mark, StudentClass
 
 from .forms import CreateResults,  EditResultsForm
 from .models import Result, FinalResult
@@ -20,6 +20,7 @@ from django.contrib.auth.decorators import permission_required       #Added
 @permission_required('result.add_result')                            #Added
 def create_result(request):
     students = Student.objects.all()
+    list_of_classes = StudentClass.objects.all()
     if request.method == "POST":
 
         # after visiting the second page
@@ -36,7 +37,7 @@ def create_result(request):
                     return render(
                         request,
                         "result/final_result_page.html",
-                        {"data": final_data}
+                        {"data": final_data, "class_list": list_of_classes, "show": False}
                     )
                 results = []
                
@@ -86,7 +87,7 @@ def create_result(request):
             )
         else:
             messages.warning(request, "You didnt select any student.")
-    return render(request, "result/create_result.html", {"students": students})
+    return render(request, "result/create_result.html", {"students": students, "class_list": list_of_classes})
 
 
 @login_required
@@ -125,6 +126,7 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
     permission_required = "result.view_result"                               #Added
     def get(self, request, *args, **kwargs):
         lower_term = str(request.current_term).lower()
+        list_of_classes = StudentClass.objects.all()
         if 'final' in lower_term:
             if request.user.is_staff or request.user.groups.filter(name="Teacher"):
                 final_results = FinalResult.objects.filter(
@@ -134,14 +136,78 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
                 final_results = FinalResult.objects.filter(
                     session=request.current_session, term=request.current_term, student=Student.objects.get(id = request.user.member_id)
                 )
-                
             formatted_final_res = get_formatted_data(final_results)
-            context = {"data": formatted_final_res}
+            context = {"data": formatted_final_res, "class_list": list_of_classes, "show": True}
             return render(request, "result/final_result_page.html", context)
 
         if request.user.is_staff:
             results = Result.objects.filter(
                 session=request.current_session, term=request.current_term
+            )
+        else:
+            results = Result.objects.filter(
+                session=request.current_session, term=request.current_term, student=Student.objects.get(id = request.user.member_id)
+            )
+        bulk = {}
+        for result in results:
+
+            test_total = 0
+            exam_total = 0
+            performance_total = 0
+            speaking_total = 0
+            listening_total = 0
+            equivalent_total = 0
+            real_total = 0
+            subjects = []
+
+            for subject in results:
+                if subject.student == result.student:
+                    subjects.append(subject)
+                    test_total += subject.test_score
+                    exam_total += subject.exam_score
+                    performance_total += subject.performance_score
+                    speaking_total += subject.speaking_score
+                    listening_total += subject.listening_score
+                    equivalent_total += subject.equivalent_score
+                    real_total+= 100
+            
+            bulk[result.student.id] = {
+                "student": result.student,
+                "subjects": subjects,
+                "test_total": test_total,
+                "exam_total": exam_total,
+                "performance_total": performance_total,
+                "speaking_total": speaking_total,
+                "listening_total": listening_total,
+                "total_total": test_total + exam_total + performance_total + speaking_total + listening_total,
+                "equivalent_total": equivalent_total,
+                "percentage": format((equivalent_total/real_total)*100, ".2f") + "%"
+            }
+
+        context = {"results": bulk, "class_list": list_of_classes}
+        return render(request, "result/all_results.html", context)
+
+class ResultClassListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Modified
+    permission_required = "result.view_result"                               #Added
+    def get(self, request, *args, **kwargs):
+        lower_term = str(request.current_term).lower()
+        list_of_classes = StudentClass.objects.all()
+        if 'final' in lower_term:
+            if request.user.is_staff or request.user.groups.filter(name="Teacher"):
+                final_results = FinalResult.objects.filter(
+                    session=request.current_session, term=request.current_term, current_class=kwargs['pk']
+                )
+            else:
+                final_results = FinalResult.objects.filter(
+                    session=request.current_session, term=request.current_term, student=Student.objects.get(id = request.user.member_id)
+                )
+            formatted_final_res = get_formatted_data(final_results)
+            context = {"data": formatted_final_res, "class_list": list_of_classes, "show": True}
+            return render(request, "result/final_result_page.html", context)
+
+        if request.user.is_staff:
+            results = Result.objects.filter(
+                session=request.current_session, term=request.current_term, current_class=kwargs['pk']
             )
         else:
             results = Result.objects.filter(
@@ -182,5 +248,5 @@ class ResultListView(LoginRequiredMixin, PermissionRequiredMixin, View):     #Mo
                 "percentage": format((equivalent_total/real_total)*100, ".2f") + "%"
             }
 
-        context = {"results": bulk}
+        context = {"results": bulk, "class_list": list_of_classes}
         return render(request, "result/all_results.html", context)

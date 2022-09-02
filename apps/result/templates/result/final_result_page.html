@@ -1,6 +1,25 @@
 {% extends 'base.html' %}
 
 {% block fullcard %}
+{% if request.user.is_staff or request.user.groups.first.name == 'Teacher' %}
+  <div class="row">
+     <div class="col">
+        <input type="text" class="search" placeholder="Search name:" style="float:left;margin-bottom:7px;outline:None;"> 
+     </div>
+    {% if show == True %}
+    <div class="dropdown">
+      <button class="btn btn-success dropdown-toggle mb-3" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Select Class
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        {% for class in class_list.values %}
+          <a href="{% url 'student-class-resp' class.id %}" class="dropdown-item">{{class.name}}</a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+  </div>
+{% endif %}
 
   {% for key, result in data.items %}
     <div class="card">
@@ -52,4 +71,20 @@
     </div>
   {% endfor %}
 
+  <script>
+    $(".search").on("keyup", function() {
+      var input = $(this).val().toUpperCase();
+      $(".card").each(function(index, value) {
+        // if (($(value).find('.card-header').text().toUpperCase().trim()).startsWith(input) == true) {
+        if ($(value).find('.card-header').text().toUpperCase().indexOf(input) < 0) {
+          $(this).hide();
+        } else {
+          $(this).show();
+        }
+      })
+    });
+  </script>
+
 {% endblock fullcard %}
+
+

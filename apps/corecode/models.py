@@ -158,8 +158,8 @@ class Mark(models.Model):
         return str(self.subject)
 
 class MarkAuditLog(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING)
-    mark = models.ForeignKey(Mark, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    mark = models.ForeignKey(Mark, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
